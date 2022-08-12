@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="table.css" rel="stylesheet" type="text/css">
+    <script>
+        var url1 = 'http://localhost:3002/all_users';
+        var url3 = "http://localhost:3002/autorization/";
+        var user = "";
+        function authorization(url3){
+            function reqListener(event) {
+                var data = JSON.parse(this.responseText);
+                if (data!= "incorrect password" && data != "no such user") {
+                    document.getElementById("table_div").style.display = 'block';
+                     document.getElementById("form").style.display = 'block';
+                     document.getElementById("show").style.display = 'block';
+                    document.getElementById("authorization").style.display = 'none';
+                    user = data;
+                }
+                else alert(data);
+            }
+            var to_send = {
+                "user_login": document.getElementById("login").value,
+                "password": document.getElementById("password").value
+            };
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("POST", url3);
+            oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            oReq.send(JSON.stringify(to_send));
+        }
+
+        function showRows(request) {
+            if (user == "admin") {
+                showAllRows(url1);
+            } else {
+                function reqListener(event) {
+                    var data = JSON.parse(this.responseText);
+                    var table = document.getElementById("table_data");
+                    table.innerHTML = '';
+                    if (data.length > 0) {
+                        var header = table.createTHead();
+                        var hrow = header.insertRow();
+                        for (var k in data[0]) {
+                            var cell = hrow.insertCell();
+                            cell.innerHTML = k;
+                        }
+
+                    }
+                    document.getElementById("table_div").style.display = 'block';
+                    for (var i = 0; i < data.length; i++) {
+                        var newRow = table.insertRow();
+                        for (j in data[i]) {
+                            var cell = newRow.insertCell();
+                            cell.innerHTML = data[i][j];
+                        }
+                    }
+                }
+
+                var to_send = {
+                    "user": user
+                }
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                oReq.open("POST", url5);
+                oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                oReq.send(JSON.stringify(to_send));
+            }
+        }
+
+        function showAllRows(request) {
+            function reqListener(event) {
+                var data = JSON.parse(this.responseText);
+                var table = document.getElementById("table_data");
+                table.innerHTML='';
+                if (data != null) {
+                    var header = table.createTHead();
+                    var hrow = header.insertRow();
+                    for (var k in data[0]) {
+                        var cell = hrow.insertCell();
+                        cell.innerHTML= k;
+                    }
+
+                }
+                document.getElementById("table_div").style.display = 'block';
+                for (var i =0; i<data.length;i++ ){
+                    var newRow = table.insertRow();
+                    for (j in data[i]){
+                        var cell = newRow.insertCell();
+                        cell.innerHTML = data[i][j];
+                    }
+                }
+            }
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("GET", request);
+            oReq.send();
+        }
+
+    </script>
+</head>
+<body>
+<div id="authorization"  style="width:380px; padding-left:100px;"> <fieldset style ="background: #d8fcd1">
+    <legend>Введите логин и пароль</legend>
+    <p>  Логин :  <input type="text" id = "login"> <p> <p>
+    Пароль: <input type="text" id = "password"><br>
+</fieldset><p><p>
+    <input type="button" onclick="authorization(url3)" value="Ввод">
+</div>
+<div id="form"  style="display: none; width:700px; padding-left:50px;">
+</div>
+
+<div id = "show" style="display: none; padding-left: 50px">
+    <input type="button" onclick="showRows(url1)" value="Посмотреть пользователей">
+</div>
+
+<div id="table_div" style="padding-top: 25px">
+    <table id="table_data">
+    </table>
+</div>
+
+</body>
+</html>
